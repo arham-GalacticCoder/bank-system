@@ -93,7 +93,7 @@ def main():
         print("5.exit")   
 
         try:
-            choose_service = input("choose the service:")
+            choose_service = input("choose the service: ").strip()
             
             if choose_service == "1":
                 show_user_details(**user_info)
@@ -112,7 +112,6 @@ def main():
                 break
             else:
                 print("invalid input")
-                continue
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
 
