@@ -1,123 +1,130 @@
-#menu of services:
-
 def login():
     correct_username = "khalid"
     correct_password = "arham123"
     attempts = 0
+
     while attempts < 3:
-        username = input("enter your username:")
-        password = input("enter your password:")
+        username = input("Enter your username: ")
+        password = input("Enter your password: ")
+
         if username == correct_username and password == correct_password:
-            print("login successful")
+            print("Login successful\n")
             return True
         else:
-            print("invalid username or password. please try again.")
+            print("Invalid username or password. Try again.")
             attempts += 1
-    print("you have reached the maximum number of attempts. please try again later.")
+
+    print("Maximum attempts reached. Try again later.")
     return False
 
+
+# -------- LOAD BALANCE --------
 def load_balance():
     try:
         with open("amount.txt", "r") as file:
-            return int(file.read())
+            content = file.read().strip()
+            return int(content) if content else 0
     except FileNotFoundError:
+        # Create the file if it doesn't exist
+        save_balance(0)
         return 0
-    except (ValueError, IOError) as e:
-        print(f"Error loading balance: {e}")
-        return 0
-
-def save_balance(balance):
-    try:
-        with open("amount.txt", "w") as file:
-            file.write(str(balance))
-    except IOError as e:
-        print(f"Error saving balance: {e}")
-
-def deposit(balance_enquiry, history, *args):
-    for amount in args:
-        try:
-            amount = int(amount)
-            if amount <= 0:
-                print(f"invalid amount: {amount}")
-            else:
-                balance_enquiry += amount
-                history.append(f"Deposited: {amount}")
-                print(f"Deposited: {amount}")
-        except ValueError:
-            print(f"invalid input: {amount}")
-    print(f"your new balance is {balance_enquiry}")
-    return balance_enquiry
-
-def withdraw(balance_enquiry, history):
-    try:
-        amount = int(input("enter the amount to withdraw:"))
-        if amount <= 0:
-            print("invalid amount")
-        elif amount > balance_enquiry:
-            print("insufficient balance")
-        else:
-            balance_enquiry -= amount
-            history.append(f"Withdrew: {amount}")
-            print(f"your new balance is {balance_enquiry}")
     except ValueError:
-        print("invalid input")
-    return balance_enquiry
+        print("File data corrupted. Resetting balance to 0")
+        return 0
 
+
+# -------- SAVE BALANCE --------
+def save_balance(balance):
+    with open("amount.txt", "w") as file:
+        file.write(str(balance))
+
+
+# -------- DEPOSIT --------
+def deposit(balance, history):
+    try:
+        amount = int(input("Enter amount to deposit: "))
+        if amount <= 0:
+            print("Invalid amount")
+        else:
+            balance += amount
+            history.append(f"Deposited: {amount}")
+            print(f"Deposited: {amount}")
+    except ValueError:
+        print("Invalid input")
+
+    return balance
+
+
+# -------- WITHDRAW --------
+def withdraw(balance, history):
+    try:
+        amount = int(input("Enter amount to withdraw: "))
+        if amount <= 0:
+            print("Invalid amount")
+        elif amount > balance:
+            print("Insufficient balance")
+        else:
+            balance -= amount
+            history.append(f"Withdrew: {amount}")
+            print(f"Withdrew: {amount}")
+    except ValueError:
+        print("Invalid input")
+
+    return balance
+
+
+# -------- SHOW HISTORY --------
 def show_history(history):
     print("\n--- Transaction History ---")
     if not history:
         print("No transactions yet.")
+        return
     for entry in history:
         print(entry)
 
-def show_user_details(**kwargs):
-    print("\n--- User Details ---")
-    for key, value in kwargs.items():
-        print(f"{key}: {value}")
 
+# -------- MAIN PROGRAM --------
 def main():
     if not login():
         return
 
-    balance_enquiry = load_balance()
-    transaction_history = []
-    # Store user details using **kwargs
-    user_info = {"name": "Khalid", "account_type": "Savings", "currency": "USD"}
-    
+    balance = load_balance()
+    history = []
+
     while True:
-        print("\n--- Menu ---")
-        print("1.balance enquiry")
-        print("2.deposit")
-        print("3.withdraw")
-        print("4.transaction history")
-        print("5.exit")   
+        print("\n--- MENU ---")
+        print("1. Balance enquiry")
+        print("2. Deposit")
+        print("3. Withdraw")
+        print("4. Transaction history")
+        print("5. Exit")
 
-        try:
-            choose_service = input("choose the service: ").strip()
-            
-            if choose_service == "1":
-                show_user_details(**user_info)
-                print(f"your balance is {balance_enquiry}")
-            elif choose_service == "2":
-                amounts_input = input("enter amounts to deposit (separated by space): ").split()
-                balance_enquiry = deposit(balance_enquiry, transaction_history, *amounts_input)
-                save_balance(balance_enquiry)
-            elif choose_service == "3":
-                balance_enquiry = withdraw(balance_enquiry, transaction_history)
-                save_balance(balance_enquiry)
-            elif choose_service == "4":
-                show_history(transaction_history)
-            elif choose_service == "5":
-                print("thank you for using our services")
-                break
-            else:
-                print("invalid input")
-        except Exception as e:
-            print(f"An unexpected error occurred: {e}")
+        choice = input("Choose an option: ").strip()
 
-    save_balance(balance_enquiry)
-main()
-print("-----------------------------------")
-print("THANKS FOR USING OUR SERVICES")
-print("-----------------------------------")
-print("HAVE A NICE DAY")
+        if choice == "1":
+            print(f"Your balance is: {balance}")
+        elif choice == "2":
+            balance = deposit(balance, history)
+            save_balance(balance)
+
+        elif choice == "3":
+            balance = withdraw(balance, history)
+            save_balance(balance)
+
+        elif choice == "4":
+            show_history(history)
+
+        elif choice == "5":
+            print("Thank you for using our service!")
+            break
+
+        else:
+            print("Invalid choice.Please try again.")
+
+    save_balance(balance)
+
+
+# -------- RUN PROGRAM --------
+if __name__ == "__main__":
+    main()
+    
