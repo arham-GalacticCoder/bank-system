@@ -99,8 +99,7 @@ def main():
         print("4. Transaction history")
         print("5. Exit")
 
-        choice = input("Choose an option: ").strip()
-
+        choice = input("Choose an option: ")
         if choice == "1":
             print(f"Your balance is: {balance}")
         elif choice == "2":
